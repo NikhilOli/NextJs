@@ -1,5 +1,27 @@
+import Image from "next/image";
+import HeroImage from "../../public/hero.png";
+import { Button } from "@/components/ui/button";
+import styles from "./page.module.css"
+import Link from "next/link";
+
 const page = () => {
-  return <div className="text-4xl text-center text-purple-500">Home page</div>;
+  return (
+    <div className={styles.container}>
+      <div className={styles.item}>
+        <h1 className={styles.title}>
+          Better design for your digital products.
+        </h1>
+        <p className={styles.desc}>
+          Turning your Idea into Reality. We bring together the teams from the
+          global tech industry.
+        </p>
+        <Link href="/portfolio"><Button className="btn">See Our Works</Button></Link>
+      </div>
+      <div className={styles.item}>
+        <Image src={HeroImage} alt="" className={styles.img} />
+      </div>
+    </div>
+  );
 };
 
 export default page;

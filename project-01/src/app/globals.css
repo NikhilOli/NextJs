@@ -16,7 +16,13 @@
     @apply font-bold text-[22px]
   }
   .footer {
-    @apply h-[50px] flex items-center justify-center
+    @apply h-[50px] text-sm flex items-center justify-between
+  }
+  .social-links {
+    @apply flex items-center gap-3 justify-between
+  }
+  .btn {
+    @apply bg-[#7B2CBF] w-max
   }
 }
 

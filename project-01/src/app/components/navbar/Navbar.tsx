@@ -16,7 +16,7 @@ const Navbar = () => {
             <Link className='' key={link.id} href={link.url}>{link.title}</Link>
           ))
         }
-        <Button className='bg-[#7B2CBF]' variant={'destructive'} >Logout</Button>
+        <Button className='btn' variant={'destructive'} >Logout</Button>
       </div>
 
     </nav>
