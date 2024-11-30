@@ -21,9 +21,7 @@
   .social-links {
     @apply flex items-center gap-3 justify-between
   }
-  .btn {
-    @apply bg-[#7B2CBF] w-max
-  }
+  
 }
 
 body {
