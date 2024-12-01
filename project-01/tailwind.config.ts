@@ -9,6 +9,9 @@ export default {
   ],
   theme: {
   	extend: {
+      colors: {
+        primary: "#7B2CBF"
+      }
   		
   	}
   },

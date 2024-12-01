@@ -10,7 +10,7 @@ interface BtnProps {
 const Btn: React.FC<BtnProps> = ({path, text}) => {
   return (
     <Link href={path}>
-      <Button className="bg-[#7B2CBF] w-max">{text}</Button>
+      <Button className="bg-primary w-max">{text}</Button>
     </Link>
   );
 };
