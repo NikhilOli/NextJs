@@ -1,1 +1,1 @@
-This is nextjs projects repo
+This is a nextjs repository
