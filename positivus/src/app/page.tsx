@@ -1,6 +1,6 @@
 "use client"
 export default function Home() {
   return (
-    <h1>Positivus</h1>
+    <h1>Homepage</h1>
   );
 }
