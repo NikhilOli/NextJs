@@ -19,8 +19,9 @@ export default {
   		// 	sm: 'calc(var(--radius) - 4px)'
   		// }
 		  colors: {
-			background: '#030637', // Your default background color
-			text: '#DDDDDD', // Your default text color
+			primary: '#b9ff66', // Your default background color
+			secondary: '#191a23',
+			tertiary: '#F3F3F3', // Your default text color
 		  },
   	}
   },
