@@ -1,11 +1,13 @@
 "use client"
 
-import Navbar from "@/components/Navbar"
+import Clients from "@/components/Clients";
+import Hero from "@/components/Hero";
 
 export default function Home() {
   return (
-    <div>
-      
-    </div>
+    <main className="">
+      <Hero />
+      <Clients />
+    </main>
   );
 }

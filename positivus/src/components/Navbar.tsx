@@ -16,7 +16,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="w-full flex items-center justify-between px-4 py-3 bg-red-500">
+    <nav className="w-full flex items-center justify-between px-4 md:px-14 py-3">
       {/* Logo */}
       <Link className="logo flex-shrink-0" href="/">
         <Image className="img" height={50} width={150} src={logo} alt="logo" />
