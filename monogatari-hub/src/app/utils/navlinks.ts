@@ -1,22 +1,33 @@
-export const links = [
+export interface NavLinksProps{
+    id: number;
+    title: string;
+    url: string;
+
+}
+export const links: NavLinksProps[] = [
     {
         id: 1,
-        title: "About Us",
-        url: "/about"
+        title: "Dashboard",
+        url: "/dashboard"
     },
     {
         id: 2,
-        title: "Use Cases",
-        url: "/usecases"
+        title: "Anime",
+        url: "/anime"
     },
     {
         id: 3,
-        title: "Pricing",
-        url: "/pricing"
+        title: "Manga",
+        url: "/manga"
     },
     {
         id: 4,
-        title: "Blog",
-        url: "/blog"
+        title: "News",
+        url: "/news"
+    },
+    {
+        id: 5,
+        title: "Database",
+        url: "/database"
     },
 ]
