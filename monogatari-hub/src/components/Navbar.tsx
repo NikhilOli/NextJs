@@ -4,10 +4,7 @@ import { links } from "@/app/utils/navlinks";
 import Link from "next/link";
 import React, { useState } from "react";
 import Btn from "@/components/Button";
-import Image from "next/image";
-// import logo from "../../public/assets/logo_black.png";
 import { FaBars, FaTimes } from "react-icons/fa";
-
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
