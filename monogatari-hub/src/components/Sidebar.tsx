@@ -6,7 +6,7 @@ import Link from "next/link";
 
 const Sidebar = () => {
   return (
-    <div className="h-screen w-[256px] bg-[#1f2937] text-white flex flex-col justify-between">
+    <div className="h-screen w-[256px] bg-[#1f2937] text-white  flex flex-col justify-between">
       <div>
         <h1 className="p-4 text-2xl text-[#a855f7] font-bold border border-b-neutral-200/20 border-t-0 border-l-0 border-r-0 ">
           Monogatari Hub
