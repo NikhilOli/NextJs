@@ -1,21 +1,23 @@
 'use client'
 
+import Link from 'next/link'
+
 export default function Home() {
   return (
     <div>
      {/* Header */}
      <header>
         <div className="container header-container">
-          <a href="#" className="logo">
+          <Link href="/" className="logo">
             <div className="logo-mark"></div>
             Job<span>Pulse</span>
-          </a>
+          </Link>
           <nav className="nav-links">
-            <a href="#" className="nav-link">Browse Jobs</a>
-            <a href="#" className="nav-link">Companies</a>
-            <a href="#" className="nav-link">Resources</a>
-            <a href="#" className="btn btn-outline">Sign In</a>
-            <a href="#" className="btn btn-primary">Post Job</a>
+            <Link href="/jobs" className="nav-link">Browse Jobs</Link>
+            <Link href="/companies" className="nav-link">Companies</Link>
+            <Link href="/resources" className="nav-link">Resources</Link>
+            <Link href="/auth/sign-in" className="btn btn-outline">Sign In</Link>
+            <Link href="/post-job" className="btn btn-primary">Post Job</Link>
           </nav>
         </div>
       </header>
