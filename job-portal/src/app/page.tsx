@@ -106,6 +106,13 @@ export default function Home() {
               <h3 className="category-title">Full Stack</h3>
               <div className="category-count">(76)</div>
             </div>
+
+            {/* Category 4 */}
+            <div className="category-card">
+              <h3 className="category-title">DevOps</h3>
+              <div className="category-count">(42)</div>
+            </div>
+
           </div>
         </div>
       </section>
