@@ -24,10 +24,10 @@ export default function JobsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Back Button - Moved outside the search header */}
+      {/* Back Button */}
       <div className="container pt-8">
         <button 
-          onClick={() => router.back()}
+          onClick={() => router.push('/')}
           className="inline-flex items-center text-gray-600 hover:text-gray-900"
         >
           <span className="mr-2">←</span> Back to Homepage
