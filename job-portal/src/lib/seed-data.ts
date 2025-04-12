@@ -12,22 +12,42 @@ export type JobSeed = {
   benefits: string[];
 }
 
-// You can add your sample jobs here
+// Sample jobs data
 export const sampleJobs: JobSeed[] = [
-  // Add your job listings here
-  // Example structure:
-  /*
   {
     title: "Frontend Developer",
     company: "Tech Corp",
     location: "San Francisco, CA",
-    description: "We are looking for...",
-    requirements: ["3+ years React experience", "TypeScript knowledge"],
+    description: "We are looking for an experienced Frontend Developer to join our team and help build modern web applications using React and Next.js.",
+    requirements: ["3+ years React experience", "TypeScript knowledge", "Experience with Next.js"],
     type: "Full-time",
     experience: "3-5 years",
     salary: "$100k - $130k",
-    skills: ["React", "TypeScript", "Next.js"],
-    benefits: ["Health insurance", "401k", "Remote work"]
+    skills: ["React", "TypeScript", "Next.js", "Tailwind CSS"],
+    benefits: ["Health insurance", "401k", "Remote work", "Flexible hours"]
+  },
+  {
+    title: "Backend Engineer",
+    company: "Data Systems Inc",
+    location: "New York, NY",
+    description: "Seeking a skilled Backend Engineer to develop and maintain scalable server-side applications and APIs.",
+    requirements: ["5+ years Node.js experience", "MongoDB expertise", "API design experience"],
+    type: "Full-time",
+    experience: "5+ years",
+    salary: "$120k - $160k",
+    skills: ["Node.js", "MongoDB", "Express", "TypeScript", "REST APIs"],
+    benefits: ["Health & dental", "Stock options", "Gym membership", "Annual bonus"]
+  },
+  {
+    title: "Full Stack Developer",
+    company: "StartupX",
+    location: "Remote",
+    description: "Join our fast-growing startup as a Full Stack Developer. Help build and scale our main product using modern technologies.",
+    requirements: ["Full stack development experience", "React/Next.js proficiency", "Node.js backend experience"],
+    type: "Full-time",
+    experience: "2-4 years",
+    salary: "$90k - $120k",
+    skills: ["React", "Next.js", "Node.js", "MongoDB", "TypeScript"],
+    benefits: ["Remote-first", "Flexible hours", "Learning budget", "Health insurance"]
   }
-  */
 ];

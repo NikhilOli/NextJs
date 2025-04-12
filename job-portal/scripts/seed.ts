@@ -1,23 +1,24 @@
-import { connectToDatabase } from '../src/lib/db';
+import { dbConnect } from '../src/lib/db';
 import { sampleJobs } from '../src/lib/seed-data';
+import { Job } from '../src/models/Job';
 
-async function seedDatabase() {
+export async function seedDatabase() {
   try {
     // 1. Connect to MongoDB
-    const client = await connectToDatabase();
+    const connection = await dbConnect();
     
-    if (!client) {
-      throw new Error('Failed to connect to the database');
-    }
+    // if (!connection) {
+    //   throw new Error('Failed to connect to the database');
+    // }
 
-    const db = client.db();
-    const jobsCollection = db.collection('jobs');
+    // const db = connection.db();
+    const jobsCollection: Job = await connection.collection('jobs');
 
     // 2. Optional: Clear existing jobs
     // await jobsCollection.deleteMany({});
 
     // 3. Insert sample jobs
-    // await jobsCollection.insertMany(sampleJobs);
+    await jobsCollection.insertMany(sampleJobs);
 
     console.log('Database seeded successfully!');
     process.exit(0);
@@ -28,4 +29,4 @@ async function seedDatabase() {
 }
 
 // Uncomment and run this function when ready to seed
-// seedDatabase();
+seedDatabase();
