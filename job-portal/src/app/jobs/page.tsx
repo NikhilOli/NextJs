@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { sampleJobs } from "@/lib/seed-data";
 
 export default function JobsPage() {
   const router = useRouter();
@@ -11,6 +12,22 @@ export default function JobsPage() {
     experience: "all",
     location: "all",
   });
+
+  const filteredJobs = sampleJobs.filter((job) => {
+    const matchesSearch =
+      searchQuery === "" ||
+      job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      job.company.toLowerCase().includes(searchQuery.toLowerCase());
+  
+    const matchesType = filters.jobType === "all" || job.type === filters.jobType;
+    const matchesExperience =
+      filters.experience === "all" || job.experience === filters.experience;
+    const matchesLocation =
+      filters.location === "all" || job.location === filters.location;
+  
+    return matchesSearch && matchesType && matchesExperience && matchesLocation;
+  });
+  
 
   const handleJobClick = (jobId: number) => {
     router.push(`/jobs/${jobId}`);
@@ -147,58 +164,48 @@ export default function JobsPage() {
             </div>
 
             {/* Job Cards */}
-            <div className="space-y-4">
-              {/* Sample Job Cards - These will be mapped from actual data */}
-              {[1, 2, 3, 4, 5].map((job) => (
-                <div
-                  key={job}
-                  onClick={() => handleJobClick(job)}
-                  className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
-                >
-                  <div className="flex justify-between items-start">
-                    <div className="flex gap-4">
-                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-xl font-bold text-gray-500">
-                        C
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          Senior Frontend Developer
-                        </h3>
-                        <p className="text-gray-600">Company Name</p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={(e) => handleSaveJob(e, job)}
-                      className="btn btn-outline"
-                    >
-                      Save Job
-                    </button>
-                  </div>
-                  <div className="mt-4 flex gap-4">
-                    <span className="text-sm text-gray-600">🌍 Remote</span>
-                    <span className="text-sm text-gray-600">💼 Full Time</span>
-                    <span className="text-sm text-gray-600">
-                      💰 $100k - $130k
-                    </span>
-                  </div>
-                  <p className="mt-4 text-gray-600">
-                    We are looking for an experienced Frontend Developer to join
-                    our team...
-                  </p>
-                  <div className="mt-4 flex gap-2">
-                    <span className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-600">
-                      React
-                    </span>
-                    <span className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-600">
-                      TypeScript
-                    </span>
-                    <span className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-600">
-                      Next.js
-                    </span>
-                  </div>
+                    {filteredJobs.map((job) => (
+          <div
+            key={job.id}
+            onClick={() => handleJobClick(job.id)}
+            className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
+          >
+            <div className="flex justify-between items-start">
+              <div className="flex gap-4">
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-xl font-bold text-gray-500">
+                  {job.company[0]}
                 </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">{job.title}</h3>
+                  <p className="text-gray-600">{job.company}</p>
+                </div>
+              </div>
+              <button
+                onClick={(e) => handleSaveJob(e, job.id)}
+                className="btn btn-outline"
+              >
+                Save Job
+              </button>
+            </div>
+            <div className="mt-4 flex gap-4 text-sm text-gray-600">
+              <span>🌍 {job.location.charAt(0).toUpperCase() + job.location.slice(1)}</span>
+              <span>💼 {job.type.replace("-", " ").replace(/\b\w/g, l => l.toUpperCase())}</span>
+              <span>💰 {job.salary}</span>
+            </div>
+            <p className="mt-4 text-gray-600">{job.description}</p>
+            <div className="mt-4 flex gap-2">
+              {job.skills.map((skill, index) => (
+                <span
+                  key={index}
+                  className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-600"
+                >
+                  {skill}
+                </span>
               ))}
             </div>
+          </div>
+        ))}
+
 
             {/* Pagination */}
             <div className="mt-8 flex justify-center">

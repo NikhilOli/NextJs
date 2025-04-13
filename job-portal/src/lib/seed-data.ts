@@ -1,5 +1,6 @@
 // Sample job data structure for seeding the database
 export type JobSeed = {
+  id: number;
   title: string;
   company: string;
   location: string;
@@ -15,6 +16,7 @@ export type JobSeed = {
 // Sample jobs data
 export const sampleJobs: JobSeed[] = [
   {
+    id: 1,
     title: "Frontend Developer",
     company: "Tech Corp",
     location: "San Francisco, CA",
@@ -27,6 +29,7 @@ export const sampleJobs: JobSeed[] = [
     benefits: ["Health insurance", "401k", "Remote work", "Flexible hours"]
   },
   {
+    id: 2,
     title: "Backend Engineer",
     company: "Data Systems Inc",
     location: "New York, NY",
@@ -39,6 +42,7 @@ export const sampleJobs: JobSeed[] = [
     benefits: ["Health & dental", "Stock options", "Gym membership", "Annual bonus"]
   },
   {
+    id: 3,
     title: "Full Stack Developer",
     company: "StartupX",
     location: "Remote",
