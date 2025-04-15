@@ -1,33 +1,64 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { sampleJobs } from "@/lib/seed-data";
+import { jobs, JobSeed } from "@/lib/seed-data";
 
 export default function JobsPage() {
   const router = useRouter();
+  const [filteredJobs, setfilteredJobs] = useState<JobSeed[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
     jobType: "all",
     experience: "all",
     location: "all",
   });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1); // current page
+  const [totalPages, setTotalPages] = useState(1); // total pages
+  const [limit] = useState(5); // number of jobs per page
 
-  const filteredJobs = sampleJobs.filter((job) => {
-    const matchesSearch =
-      searchQuery === "" ||
-      job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      job.company.toLowerCase().includes(searchQuery.toLowerCase());
+
+  // const filteredJobs = jobs.filter((job) => {
+  //   const matchesSearch =
+  //     searchQuery === "" ||
+  //     job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //     job.company.toLowerCase().includes(searchQuery.toLowerCase());
   
-    const matchesType = filters.jobType === "all" || job.type === filters.jobType;
-    const matchesExperience =
-      filters.experience === "all" || job.experience === filters.experience;
-    const matchesLocation =
-      filters.location === "all" || job.location === filters.location;
+  //   const matchesType = filters.jobType === "all" || job.type === filters.jobType;
+  //   const matchesExperience =
+  //     filters.experience === "all" || job.experience === filters.experience;
+  //   const matchesLocation =
+  //     filters.location === "all" || job.location === filters.location;
   
-    return matchesSearch && matchesType && matchesExperience && matchesLocation;
-  });
+  //   return matchesSearch && matchesType && matchesExperience && matchesLocation;
+  // });
   
+
+  useEffect(() => {
+    // Simulate fetching jobs with pagination
+    const fetchJobs = () => {
+      try {
+        // Simulate data fetching by using the seed data
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+        const jobsToDisplay = jobs.slice(startIndex, endIndex);
+
+        setfilteredJobs(jobsToDisplay);
+        setTotalPages(Math.ceil(jobs.length / limit)); // Calculate total pages
+      } catch (err) {
+        setError("An error occurred while fetching jobs.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobs();
+  }, [page, limit]); // Trigger when page changes
+
+  if (loading) return <p>Loading jobs...</p>;
+  if (error) return <p>{error}</p>;
 
   const handleJobClick = (jobId: number) => {
     router.push(`/jobs/${jobId}`);
@@ -154,7 +185,7 @@ export default function JobsPage() {
           {/* Jobs List */}
           <div className="col-span-9">
             <div className="mb-6 flex justify-between items-center">
-              <p className="text-gray-600">Showing 150 jobs</p>
+              <p className="text-gray-600">Showing {page} jobs</p>
               <select className="p-2 border border-gray-300 rounded-md">
                 <option value="relevant">Most Relevant</option>
                 <option value="recent">Most Recent</option>
@@ -210,11 +241,13 @@ export default function JobsPage() {
             {/* Pagination */}
             <div className="mt-8 flex justify-center">
               <nav className="flex gap-2">
-                <button className="btn btn-outline px-4 py-2">Previous</button>
-                <button className="btn btn-primary px-4 py-2">1</button>
-                <button className="btn btn-outline px-4 py-2">2</button>
-                <button className="btn btn-outline px-4 py-2">3</button>
-                <button className="btn btn-outline px-4 py-2">Next</button>
+                <button onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+            disabled={page === 1} className="btn btn-outline px-4 py-2 disabled:bg-gray-300/100 disabled:cursor-not-allowed">Previous</button>
+                <button className="btn btn-primary px-4 py-2">{page}</button>
+                <button className="btn btn-outline px-4 py-2">{page + 1}</button>
+                <button className="btn btn-outline px-4 py-2">{page+2}</button>
+                <button onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={page === totalPages} className="btn btn-outline px-4 py-2 disabled:bg-gray-300/100 disabled:cursor-not-allowed">Next</button>
               </nav>
             </div>
           </div>
