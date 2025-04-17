@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Filters
-    const query: any = { isActive: true };
+    const query: any = {};
     if (searchParams.get("type")) {
       query.type = searchParams.get("type");
     }

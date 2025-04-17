@@ -1,7 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface JobSeed extends Document {
-  id: number;
   title: string;
   company: string;
   location: string;
@@ -16,7 +15,6 @@ export interface JobSeed extends Document {
 
 const JobSchema: Schema = new Schema(
   {
-    id: { type: Number, required: true, unique: true },
     title: { type: String, required: true },
     company: { type: String, required: true },
     location: { type: String, required: true },
