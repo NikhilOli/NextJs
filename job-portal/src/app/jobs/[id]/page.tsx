@@ -1,67 +1,103 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { JobSeed } from "@/lib/seed-data";
 
-export default function JobDetailsPage({ params }: { params: { id: string } }) {
-  const router = useRouter()
-  const [isApplying, setIsApplying] = useState(false)
+export default function JobDetailsPage() {
+  const router = useRouter();
+  const params = useParams();
+  const [isApplying, setIsApplying] = useState(false);
+  const [job, setJob] = useState<JobSeed | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchJobDetail = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        if (!params.id) {
+          setError("Job ID is missing");
+          return;
+        }
+
+        const res = await fetch(`/api/jobs/${params.id}`);
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.message || "Failed to fetch job details");
+        }
+
+        if (data.success && data.data) {
+          setJob(data.data);
+        } else {
+          throw new Error(data.message || "Failed to fetch job details");
+        }
+      } catch (error) {
+        console.error("Error fetching job details:", error);
+        setError(
+          error instanceof Error ? error.message : "Failed to fetch job details"
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchJobDetail();
+  }, [params.id]);
 
   const handleSaveJob = (e: React.MouseEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // Add save job logic here
-    console.log('Save job:', params.id)
-  }
+    console.log("Save job:", params.id);
+  };
 
   const handleShare = (platform: string) => {
     // Add share logic here
-    console.log('Share on:', platform)
-  }
+    console.log("Share on:", platform);
+  };
 
   const handleSubmitApplication = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // Add application submission logic here
-    console.log('Submit application for job:', params.id)
-    setIsApplying(false)
+    console.log("Submit application for job:", params.id);
+    setIsApplying(false);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading job details...</p>
+        </div>
+      </div>
+    );
   }
 
-  // Sample job data - will be replaced with API data
-  const job = {
-    title: 'Senior Frontend Developer',
-    company: 'TechCorp Solutions',
-    location: '🌍 Remote',
-    type: '💼 Full Time',
-    salary: '💰 $100k - $130k',
-    experience: '5+ years',
-    posted: '2 days ago',
-    description: `We are seeking an experienced Frontend Developer to join our dynamic team. The ideal candidate will have a strong foundation in modern web technologies and a passion for creating exceptional user experiences.
-
-Key Responsibilities:
-• Develop and maintain responsive web applications
-• Collaborate with designers and backend developers
-• Optimize applications for maximum performance
-• Write clean, maintainable, and efficient code
-
-Requirements:
-• 5+ years of experience in frontend development
-• Expert knowledge of React.js and Next.js
-• Strong proficiency in TypeScript
-• Experience with state management (Redux, Context API)
-• Understanding of SEO principles and performance optimization`,
-    skills: ['React', 'TypeScript', 'Next.js', 'Redux', 'CSS', 'Git'],
-    benefits: [
-      '🏥 Health Insurance',
-      '💻 Remote Work',
-      '📚 Learning Budget',
-      '🏖️ Unlimited PTO'
-    ]
+  if (error || !job) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-500">{error || "Job not found"}</p>
+          <button
+            onClick={() => router.back()}
+            className="mt-4 text-blue-500 hover:text-blue-600"
+          >
+            ← Back to Jobs
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container">
         {/* Back Button */}
-        <button 
+        <button
           onClick={() => router.back()}
           className="mb-6 text-gray-600 hover:text-gray-900 flex items-center gap-2"
         >
@@ -79,19 +115,19 @@ Requirements:
                     {job.company[0]}
                   </div>
                   <div>
-                    <h1 className="text-2xl font-bold text-gray-900">{job.title}</h1>
+                    <h1 className="text-2xl font-bold text-gray-900">
+                      {job.title}
+                    </h1>
                     <p className="text-lg text-gray-600">{job.company}</p>
                     <div className="mt-2 flex flex-wrap gap-4">
-                      <span className="text-gray-600">{job.location}</span>
-                      <span className="text-gray-600">{job.type}</span>
-                      <span className="text-gray-600">{job.salary}</span>
+                      <span className="text-gray-600">📍 {job.location}</span>
+                      <span className="text-gray-600">🌍 {job.work_type}</span>
+                      <span className="text-gray-600">💼 {job.type}</span>
+                      <span className="text-gray-600">💰 {job.salary}</span>
                     </div>
                   </div>
                 </div>
-                <button 
-                  onClick={handleSaveJob}
-                  className="btn btn-outline"
-                >
+                <button onClick={handleSaveJob} className="btn btn-outline">
                   Save Job
                 </button>
               </div>
@@ -104,15 +140,15 @@ Requirements:
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Job Type</p>
-                  <p className="font-medium">Full Time</p>
+                  <p className="font-medium">{job.type}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Salary Range</p>
-                  <p className="font-medium">$100k - $130k</p>
+                  <p className="text-sm text-gray-600">Work Type</p>
+                  <p className="font-medium">{job.work_type}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Posted</p>
-                  <p className="font-medium">{job.posted}</p>
+                  <p className="text-sm text-gray-600">Location</p>
+                  <p className="font-medium">{job.location}</p>
                 </div>
               </div>
 
@@ -120,7 +156,7 @@ Requirements:
               <div className="mb-8">
                 <h2 className="text-xl font-semibold mb-4">Job Description</h2>
                 <div className="prose max-w-none">
-                  {job.description.split('\n\n').map((paragraph, index) => (
+                  {job.description.split("\n\n").map((paragraph, index) => (
                     <p key={index} className="mb-4 text-gray-600">
                       {paragraph}
                     </p>
@@ -128,12 +164,27 @@ Requirements:
                 </div>
               </div>
 
+              {/* Requirements */}
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold mb-4">Requirements</h2>
+                <ul className="list-disc list-inside space-y-2">
+                  {job.requirements.map((req, index) => (
+                    <li key={index} className="text-gray-600">
+                      {req}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
               {/* Skills */}
               <div className="mb-8">
                 <h2 className="text-xl font-semibold mb-4">Required Skills</h2>
                 <div className="flex flex-wrap gap-2">
-                  {job.skills.map((skill) => (
-                    <span key={skill} className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-600">
+                  {job.skills.map((skill, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center px-3 py-1 bg-gray-50 text-gray-700 text-sm font-medium rounded-full border border-gray-200 whitespace-nowrap hover:bg-gray-100 transition-colors"
+                    >
                       {skill}
                     </span>
                   ))}
@@ -144,8 +195,11 @@ Requirements:
               <div>
                 <h2 className="text-xl font-semibold mb-4">Benefits</h2>
                 <div className="grid grid-cols-2 gap-4">
-                  {job.benefits.map((benefit) => (
-                    <div key={benefit} className="flex items-center gap-2 text-gray-600">
+                  {job.benefits.map((benefit, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-2 text-gray-600"
+                    >
                       <span>{benefit}</span>
                     </div>
                   ))}
@@ -157,10 +211,12 @@ Requirements:
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg border border-gray-200 p-6 sticky top-8">
-              <h2 className="text-xl font-semibold mb-6">Apply for this position</h2>
-              
+              <h2 className="text-xl font-semibold mb-6">
+                Apply for this position
+              </h2>
+
               {!isApplying ? (
-                <button 
+                <button
                   onClick={() => setIsApplying(true)}
                   className="w-full btn btn-primary mb-4"
                 >
@@ -224,7 +280,7 @@ Requirements:
                   <button type="submit" className="w-full btn btn-primary">
                     Submit Application
                   </button>
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setIsApplying(false)}
                     className="w-full btn btn-outline"
@@ -237,20 +293,20 @@ Requirements:
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <h3 className="font-medium mb-2">Share this job</h3>
                 <div className="flex gap-4">
-                  <button 
-                    onClick={() => handleShare('linkedin')}
+                  <button
+                    onClick={() => handleShare("linkedin")}
                     className="btn btn-outline flex-1"
                   >
                     LinkedIn
                   </button>
-                  <button 
-                    onClick={() => handleShare('twitter')}
+                  <button
+                    onClick={() => handleShare("twitter")}
                     className="btn btn-outline flex-1"
                   >
                     Twitter
                   </button>
-                  <button 
-                    onClick={() => handleShare('email')}
+                  <button
+                    onClick={() => handleShare("email")}
                     className="btn btn-outline flex-1"
                   >
                     Email
@@ -262,5 +318,5 @@ Requirements:
         </div>
       </div>
     </div>
-  )
+  );
 }

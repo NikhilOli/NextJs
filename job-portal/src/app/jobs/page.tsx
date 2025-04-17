@@ -3,48 +3,39 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { JobSeed } from "@/lib/seed-data";
+import debounce from "lodash/debounce";
 
 export default function JobsPage() {
   const router = useRouter();
   const [filteredJobs, setfilteredJobs] = useState<JobSeed[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [totalJobs, setTotalJobs] = useState();
   const [filters, setFilters] = useState({
     jobType: "all",
     experience: "all",
     location: "all",
+    work_type: "all",
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(1); // current page
-  const [totalPages, setTotalPages] = useState(1); // total pages
-  const [limit] = useState(10); // number of jobs per page
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [limit] = useState(10);
 
-  // const filteredJobs = jobs.filter((job) => {
-  //   const matchesSearch =
-  //     searchQuery === "" ||
-  //     job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-  //     job.company.toLowerCase().includes(searchQuery.toLowerCase());
-
-  //   const matchesType = filters.jobType === "all" || job.type === filters.jobType;
-  //   const matchesExperience =
-  //     filters.experience === "all" || job.experience === filters.experience;
-  //   const matchesLocation =
-  //     filters.location === "all" || job.location === filters.location;
-
-  //   return matchesSearch && matchesType && matchesExperience && matchesLocation;
-  // });
   const fetchJobs = async ({
     page = 1,
     limit = 10,
     type,
     location = "",
     search = "",
+    work_type = "",
   }: {
     page?: number;
     limit?: number;
     type?: string;
     location?: string;
     search?: string;
+    work_type?: string;
   }) => {
     const params = new URLSearchParams();
 
@@ -53,13 +44,116 @@ export default function JobsPage() {
 
     if (type && type !== "all") params.append("type", type);
     if (location && location !== "all") params.append("location", location);
-    if (search) params.append("search", search);
+    if (search.trim()) params.append("search", search.trim());
+    if (work_type && work_type !== "all") params.append("work_type", work_type);
 
-    const res = await fetch(`/api/jobs?${params.toString()}`);
-    const data = await res.json();
-    return data;
+    try {
+      const res = await fetch(`/api/jobs?${params.toString()}`);
+      const data = await res.json();
+      const totalJobs = data.data.pagination.total;
+      setTotalJobs(totalJobs);
+      return data;
+    } catch (error) {
+      console.error("Error fetching jobs:", error);
+      throw error;
+    }
   };
 
+  // Debounced search function
+  const debouncedSearch = debounce(async (searchTerm: string) => {
+    try {
+      setLoading(true);
+      const response = await fetchJobs({
+        page: 1,
+        limit,
+        type: filters.jobType,
+        location: filters.location,
+        search: searchTerm,
+      });
+
+      if (response.success && response.data) {
+        setfilteredJobs(response.data.jobs);
+        console.log(response.data.jobs);
+        setTotalPages(response.data.pagination.pages);
+        setPage(1); // Reset to first page when search results come in
+      }
+    } catch (error) {
+      setError("Failed to search jobs");
+    } finally {
+      setLoading(false);
+    }
+  }, 500);
+
+  // Handle search input change
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    debouncedSearch(value);
+  };
+
+  // Handle filter changes
+  const handleFilterChange = async (
+    filterType: "jobType" | "experience" | "location" | "work_type",
+    value: string
+  ) => {
+    // Update filters immediately
+    const newFilters = { ...filters, [filterType]: value };
+    setFilters(newFilters);
+    setPage(1); // Reset to first page when filters change
+
+    try {
+      setLoading(true);
+      const response = await fetchJobs({
+        page: 1,
+        limit,
+        type: newFilters.jobType,
+        location: newFilters.location,
+        work_type: newFilters.work_type,
+        search: searchQuery,
+      });
+
+      if (response.success && response.data) {
+        setfilteredJobs(response.data.jobs);
+        setTotalPages(response.data.pagination.pages);
+      }
+    } catch (error) {
+      setError("Failed to filter jobs");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle clear filters
+  const handleClearFilters = async () => {
+    const clearedFilters = {
+      jobType: "all",
+      experience: "all",
+      location: "all",
+      work_type: "all",
+    };
+    setFilters(clearedFilters);
+    setPage(1);
+    setSearchQuery("");
+
+    try {
+      setLoading(true);
+      const response = await fetchJobs({
+        page: 1,
+        limit,
+      });
+
+      if (response.success && response.data) {
+        setfilteredJobs(response.data.jobs);
+        setTotalPages(response.data.pagination.pages);
+      }
+    } catch (error) {
+      setError("Failed to reset filters");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initial load and page change effect
   useEffect(() => {
     const loadJobs = async () => {
       try {
@@ -70,13 +164,13 @@ export default function JobsPage() {
           type: filters.jobType,
           location: filters.location,
           search: searchQuery,
+          work_type: filters.work_type,
         });
 
         if (response.success && response.data) {
           setfilteredJobs(response.data.jobs);
           setTotalPages(response.data.pagination.pages);
 
-          // If current page is greater than total pages, reset to page 1
           if (page > response.data.pagination.pages) {
             setPage(1);
           }
@@ -91,10 +185,40 @@ export default function JobsPage() {
     };
 
     loadJobs();
-  }, [page, filters, limit, searchQuery]); // Added searchQuery to dependencies
+  }, [
+    page,
+    filters.jobType,
+    filters.location,
+    searchQuery,
+    limit,
+    filters.work_type,
+  ]);
 
-  if (loading) return <p>Loading jobs...</p>;
-  if (error) return <p>{error}</p>;
+  // Cleanup debounce on component unmount
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading jobs...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
 
   const handleJobClick = (jobId: string) => {
     router.push(`/jobs/${jobId}`);
@@ -129,10 +253,9 @@ export default function JobsPage() {
               type="text"
               placeholder="Search jobs..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange}
               className="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <button className="btn btn-primary">Search</button>
           </div>
         </div>
       </div>
@@ -152,7 +275,7 @@ export default function JobsPage() {
                 <select
                   value={filters.jobType}
                   onChange={(e) =>
-                    setFilters({ ...filters, jobType: e.target.value })
+                    handleFilterChange("jobType", e.target.value)
                   }
                   className="w-full p-2 border border-gray-300 rounded-md"
                 >
@@ -160,7 +283,7 @@ export default function JobsPage() {
                   <option value="full-time">Full Time</option>
                   <option value="part-time">Part Time</option>
                   <option value="contract">Contract</option>
-                  <option value="freelance">Freelance</option>
+                  <option value="internship">Internship</option>
                 </select>
               </div>
 
@@ -190,27 +313,21 @@ export default function JobsPage() {
                   Location
                 </h3>
                 <select
-                  value={filters.location}
+                  value={filters.work_type}
                   onChange={(e) =>
-                    setFilters({ ...filters, location: e.target.value })
+                    handleFilterChange("work_type", e.target.value)
                   }
                   className="w-full p-2 border border-gray-300 rounded-md"
                 >
                   <option value="all">All Locations</option>
                   <option value="remote">Remote</option>
-                  <option value="onsite">On-site</option>
+                  <option value="on-site">On-site</option>
                   <option value="hybrid">Hybrid</option>
                 </select>
               </div>
 
               <button
-                onClick={() =>
-                  setFilters({
-                    jobType: "all",
-                    experience: "all",
-                    location: "all",
-                  })
-                }
+                onClick={handleClearFilters}
                 className="w-full btn btn-outline"
               >
                 Clear Filters
@@ -221,9 +338,7 @@ export default function JobsPage() {
           {/* Jobs List */}
           <div className="col-span-9">
             <div className="mb-6 flex justify-between items-center">
-              <p className="text-gray-600">
-                Showing {filteredJobs.length} jobs
-              </p>
+              <p className="text-gray-600">Showing {totalJobs} jobs</p>
               <select className="p-2 border border-gray-300 rounded-md">
                 <option value="relevant">Most Relevant</option>
                 <option value="recent">Most Recent</option>
@@ -237,7 +352,7 @@ export default function JobsPage() {
               <div
                 key={job._id}
                 onClick={() => handleJobClick(job._id)}
-                className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
+                className="bg-white p-6 mb-4 rounded-lg border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
               >
                 <div className="flex justify-between items-start">
                   <div className="flex gap-4">
@@ -260,9 +375,14 @@ export default function JobsPage() {
                 </div>
                 <div className="mt-4 flex gap-4 text-sm text-gray-600">
                   <span>
-                    🌍{" "}
+                    📍{" "}
                     {job.location.charAt(0).toUpperCase() +
                       job.location.slice(1)}
+                  </span>
+                  <span>
+                    🌍{" "}
+                    {job.work_type.charAt(0).toUpperCase() +
+                      job.work_type.slice(1)}
                   </span>
                   <span>
                     💼{" "}
@@ -273,15 +393,19 @@ export default function JobsPage() {
                   <span>💰 {job.salary}</span>
                 </div>
                 <p className="mt-4 text-gray-600">{job.description}</p>
-                <div className="mt-4 flex gap-2">
-                  {job.skills.map((skill, index) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-600"
-                    >
-                      {skill}
-                    </span>
-                  ))}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {job.skills.map((skill, index) => {
+                    // Normalize the skill text
+                    const normalizedSkill = skill.trim();
+                    return (
+                      <span
+                        key={index}
+                        className="inline-flex items-center px-3 py-1 bg-gray-50 text-gray-700 text-sm font-medium rounded-full border border-gray-200 whitespace-nowrap hover:bg-gray-100 transition-colors"
+                      >
+                        {normalizedSkill}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             ))}

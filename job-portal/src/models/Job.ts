@@ -4,6 +4,7 @@ export interface JobSeed extends Document {
   title: string;
   company: string;
   location: string;
+  work_type: string;
   description: string;
   requirements: string[];
   type: string;
@@ -18,6 +19,7 @@ const JobSchema: Schema = new Schema(
     title: { type: String, required: true },
     company: { type: String, required: true },
     location: { type: String, required: true },
+    work_type: { type: String, required: true },
     description: { type: String, required: true },
     requirements: { type: [String], required: true },
     type: { type: String, required: true },
